@@ -23,48 +23,51 @@ def make_post(r, root):
     #r.submit(subreddit, title, text)
 
 def posting_logic(xmlfile):
-    print("Checking post logic...")
+    #print("Checking post logic...")
     tree = ElementTree.parse(xmlfile)
     root = tree.getroot()
     operatingStatus = root.find("OperatingStatus").text
     dateStatusPosted = root.find("DateStatusPosted").text
-    print("operatingStatus: ", operatingStatus)
-    print("dateStatusPosted: ", dateStatusPosted)
+    #print("operatingStatus: ", operatingStatus)
+    #print("dateStatusPosted: ", dateStatusPosted)
     global previousOperatingStatus
     global previousDateStatusPosted
-    print("previousOperatingStatus: ", previousOperatingStatus)
-    print("previousDateStatusPosted: ", previousDateStatusPosted)
+    #print("previousOperatingStatus: ", previousOperatingStatus)
+    #print("previousDateStatusPosted: ", previousDateStatusPosted)
     if (operatingStatus != "Open") and ((dateStatusPosted != previousDateStatusPosted) or (operatingStatus != previousOperatingStatus)):
         print("Make a post!")
         previousOperatingStatus = operatingStatus
         previousDateStatusPosted = dateStatusPosted
         return root, True
     else:
-        print("Don't make a post!")
+        #print("Don't make a post!")
         previousOperatingStatus = operatingStatus
         previousDateStatusPosted = dateStatusPosted
         return root, False
 
-def run_bot(r):
+def run_bot():
     print ("Running bot...")
     while True:
         try:
             url = "https://www.opm.gov/xml/operatingstatus.xml"
             request = requests.get(url)
-            print("Making OPM status request...")
+            #print("Making OPM status request...")
             if (request.status_code == 200):
-                print("Good request! Status code 200.")
+                #print("Good request! Status code 200.")
                 with open('status.xml', 'wb') as f: 
                 	f.write(request.content)
                 root, flag = posting_logic('status.xml')
                 if (flag):
+                    r = bot_login()
+                    print(r.user.me())
+                    print ("Logged in!")
                     make_post(r, root)
             else:
                 print("Bad request!")
-            time.sleep(15)
+            time.sleep(60)
         except Exception as e:
                 print (str(e.__class__.__name__) + ": " + str(e))
-                time.sleep(15)
+                time.sleep(60)
 
 def bot_login():
     print ("Logging in...")
@@ -79,11 +82,8 @@ def bot_login():
 if __name__ == "__main__":
     while True:
         try:
-            r = bot_login()
-            print(r.user.me())
-            print ("Logged in!")
-            run_bot(r)
+            run_bot()
 
         except Exception as e:
             print (str(e.__class__.__name__) + ": " + str(e))
-            time.sleep(15)
+            time.sleep(60)
