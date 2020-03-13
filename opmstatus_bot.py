@@ -20,7 +20,7 @@ def make_post(r, root):
     print("Post title: ", title)
     print("Post text: ", text)
     subreddit = r.subreddit('washingtondc')
-    #r.submit(subreddit, title, text)
+    r.submit(subreddit, title, text)
 
 def posting_logic(xmlfile):
     #print("Checking post logic...")
